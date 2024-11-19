@@ -10,9 +10,6 @@ import java.util.List;
 @Service
 public interface SkillService {
 
-   
-
-    // Save a new skill
     public Skill saveSkill(Skill skill);
     public List<Skill> getAllSkills();
     

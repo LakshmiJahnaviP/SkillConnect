@@ -13,11 +13,11 @@ public class Skill {
     private Long id; 
     private String name; 
     
-    // Default constructor (required by JPA)
+   
     public Skill() {
     }
 
-    // Getters and setters for id and name
+    
     public Long getId() {
         return id;
     }
