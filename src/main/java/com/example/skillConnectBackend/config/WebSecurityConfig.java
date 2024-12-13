@@ -35,7 +35,7 @@ public class WebSecurityConfig {
             .cors().and() // Enable CORS
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
-                .requestMatchers("/register", "/login").permitAll() // Ensure register and login are open
+                .requestMatchers("/register", "/login","/api/skills/suggestions").permitAll() // Ensure register and login are open
                 .anyRequest().permitAll() // Other routes require authentication
             )
             .formLogin().disable() // Disable form login to prevent redirection to the login page

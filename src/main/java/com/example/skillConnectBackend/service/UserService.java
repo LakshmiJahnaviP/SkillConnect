@@ -1,7 +1,11 @@
 package com.example.skillConnectBackend.service;
 
+import com.example.skillConnectBackend.model.Skill;
 import com.example.skillConnectBackend.model.User;
+import com.example.skillConnectBackend.repository.SkillRepository;
 import com.example.skillConnectBackend.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 import java.util.Optional;
 
@@ -14,6 +18,14 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private SkillService skillService;
+    
+    @Autowired
+    private SkillRepository skillRepository;
+    
+    
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -54,5 +66,22 @@ public class UserService {
         Optional<User> user = userRepository.findById(userId);
         return user.orElse(null);  // Return the user or null if not found
     }
+    public Skill addSkillToUser(Long userId, Long skillId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Skill skill = skillRepository.findById(skillId).orElseThrow(() -> new RuntimeException("Skill not found"));
+        user.getSkills().add(skill);
+        userRepository.save(user);
+        return skill;
+    }
 
+    public void removeSkillFromUser(Long userId, Long skillId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        Skill skill = skillRepository.findById(skillId).orElseThrow(() -> new RuntimeException("Skill not found"));
+        user.getSkills().remove(skill);
+        userRepository.save(user);
+    }
+
+    public Optional<User> findByIdWithSkills(Long userId){
+        return userRepository.findById(userId);
+    }
 }

@@ -1,9 +1,13 @@
 package com.example.skillConnectBackend.model;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "users") 
 public class User {
     
 	@Id
@@ -23,19 +27,14 @@ public class User {
     private String password;
     private String role;
     
-    
-    // Constructors
-    public User() {
-    }
-
-    public User(String username,String firstName, String lastName, String email, String password, String role) {
-    	this.username = username;
-    	this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
+    @ManyToMany(cascade = {CascadeType.MERGE})
+    @JoinTable(
+        name = "user_skills",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "skill_id")
+    )
+    private Set<Skill> skills = new HashSet<>();
+	
 
     // Getters and setters
     public Long getId() {
@@ -91,5 +90,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+    
+    public Set<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(Set<Skill> skills) {
+        this.skills = skills;
     }
 }

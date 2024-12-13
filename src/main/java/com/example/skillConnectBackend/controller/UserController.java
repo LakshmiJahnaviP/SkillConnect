@@ -3,8 +3,11 @@ package com.example.skillConnectBackend.controller;
 import com.example.skillConnectBackend.responses.ErrorResponse;
 import com.example.skillConnectBackend.responses.SuccessResponse;
 import com.example.skillConnectBackend.responses.UserProfileUpdateRequest;
+import com.example.skillConnectBackend.model.Skill;
 import com.example.skillConnectBackend.model.User;
+import com.example.skillConnectBackend.repository.SkillRepository;
 import com.example.skillConnectBackend.repository.UserRepository;
+import com.example.skillConnectBackend.service.SkillService;
 import com.example.skillConnectBackend.service.UserService;
 
 import jakarta.servlet.http.Cookie;
@@ -14,7 +17,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import com.example.skillConnectBackend.controller.LoginRequest;
 
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,6 +50,10 @@ public class UserController {
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+    
+    @Autowired
+    private SkillRepository skillRepository;
+
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody User user) {
@@ -147,51 +159,67 @@ public class UserController {
 
 
  // End point to get user profile details
-    @GetMapping("/profile")
-    public ResponseEntity<?> getProfile(@RequestParam(required = false) Long userId) {
-        if (userId == null) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("Invalid Request", "userId parameter is required"));
-        }
+   
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfile(@RequestParam Long userId) {
+    	
         Optional<User> userOpt = userRepository.findById(userId);
+
         if (userOpt.isPresent()) {
-            return ResponseEntity.ok(userOpt.get());
+            User user = userOpt.get();
+            return ResponseEntity.ok(user); // Includes skills in response
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse("User not found", "No user found with the provided ID"));
-        }
-    }
-
-    @GetMapping("/{userId}/profile")
-    public ResponseEntity<User> getUserProfile(@PathVariable Long userId) {
-        try {
-            User user = userService.getUserProfile(userId); // Call the service method
-            if (user != null) {
-                return ResponseEntity.ok(user);  // Return the user profile as response
-            } else {
-                return ResponseEntity.notFound().build();  // Return 404 if the user is not found
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();  // Return error status if there's an issue
+                .body(new ErrorResponse("User not found", "No user found with the provided ID"));
         }
     }
 
 
     // End point to update profile excluding password
     @PutMapping("/profile")
-    public ResponseEntity<User> updateUserProfile(@RequestParam Long userId, @RequestBody User userDetails) {
-        Optional<User> existingUserOpt = userRepository.findById(userId);
-        if (existingUserOpt.isPresent()) {
-            User existingUser = existingUserOpt.get();
-            existingUser.setFirstName(userDetails.getFirstName());
-            existingUser.setLastName(userDetails.getLastName());
-            existingUser.setEmail(userDetails.getEmail());
-            userRepository.save(existingUser);
-            return ResponseEntity.ok(existingUser);
+    public ResponseEntity<?> editUserProfile(@RequestParam Long userId, @RequestBody User updatedUser) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+
+            // Update user basic details
+            user.setUsername(updatedUser.getUsername());
+            user.setFirstName(updatedUser.getFirstName());
+            user.setLastName(updatedUser.getLastName());
+            user.setEmail(updatedUser.getEmail());
+
+            // Get current skills and prepare incoming skills
+            Set<Skill> currentSkills = user.getSkills();
+            Set<Skill> incomingSkills = new HashSet<>();
+
+            for (Skill skill : updatedUser.getSkills()) {
+                Skill existingSkill = skillRepository.findById(skill.getId())
+                        .orElseThrow(() -> new RuntimeException("Skill not found: " + skill.getId()));
+                incomingSkills.add(existingSkill);
+            }
+
+            // Identify skills to remove
+            Set<Skill> skillsToRemove = new HashSet<>(currentSkills);
+            skillsToRemove.removeAll(incomingSkills); // Skills in currentSkills but not in incomingSkills
+
+            // Remove only the missing skills
+            currentSkills.removeAll(skillsToRemove);
+
+            // Add new skills
+            currentSkills.addAll(incomingSkills);
+
+            // Save the updated skills
+            user.setSkills(currentSkills);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+
+
 
     // End point to change password
     @PutMapping("/change-password")
@@ -242,7 +270,9 @@ public class UserController {
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
-
+    
+   
+ 
 
 
 }
