@@ -14,12 +14,13 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.example.skillConnectBackend.controller.LoginRequest;
+import com.example.skillConnectBackend.requests.LoginRequest;
+import com.example.skillConnectBackend.requests.PasswordChangeRequest;
 
-import java.security.Principal;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,7 +28,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,12 +38,13 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
-	private final UserService userService;
-
-    @Autowired
+	
     public UserController(UserService userService) {
         this.userService = userService;
     }
+    
+    @Autowired
+    private UserService userService;
     
     @Autowired
     private UserRepository userRepository;
@@ -269,6 +270,23 @@ public class UserController {
             "No user found with the provided ID"
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+    
+    @PostMapping("/by-skills")
+    public ResponseEntity<List<Map<String, Object>>> getUsersBySkills(@RequestBody Map<String, List<Long>> payload) {
+        List<Long> skillIds = payload.get("skillIds");
+        List<User> users = userService.getUsersBySkillIds(skillIds);
+
+        List<Map<String, Object>> userResponses = users.stream().map(user -> {
+            Map<String, Object> userMap = new HashMap<>();
+            userMap.put("id", user.getId());
+            userMap.put("firstName", user.getFirstName());
+            userMap.put("lastName", user.getLastName());
+            userMap.put("username", user.getUsername());
+            return userMap;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(userResponses);
     }
     
    

@@ -23,10 +23,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT PostResponse(p.id, p.content, p.timestamp, u.username, p.skills) " +
     	       "FROM Post p JOIN p.user u")
     	List<PostResponse> findAllWithUsernames();
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.taggedUsers WHERE p.id = :postId")
+    @Query("SELECT p FROM Post p JOIN FETCH p.taggedUsers WHERE p.id = :postId")
     Optional<Post> findPostWithTaggedUsers(@Param("postId") Long postId);
 
-    @Query("SELECT p FROM Post p LEFT JOIN FETCH p.taggedUsers")
+    @Query("SELECT p FROM Post p JOIN FETCH p.taggedUsers")
     List<Post> findAllPostsWithTaggedUsers();
 
 }

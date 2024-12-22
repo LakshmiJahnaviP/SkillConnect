@@ -4,64 +4,65 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "notifications")
 public class Notification {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	    @Id
+	    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	    private Long id;
+	    @ManyToOne
+	    @JoinColumn(name = "user_id", nullable = false)
+	    private User user;
 
-    private String message;
+	    private String message;
 
-    private boolean read;
+	    @Column(name = "is_read")
+	    private boolean read;
 
-    private LocalDateTime timestamp;
+	    private LocalDateTime timestamp;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-    
+	    // Getters and Setters
+	    
 
-   
+	    public String getMessage() {
+	        return message;
+	    }
 
-    // Getters and Setters
+	    public User getUser() {
+			return user;
+		}
 
-    public Long getId() {
-        return id;
-    }
+		public void setUser(User user) {
+			this.user = user;
+		}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+		public void setMessage(String message) {
+	        this.message = message;
+	    }
 
-    public String getMessage() {
-        return message;
-    }
+	   
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+	    public Long getId() {
+			return id;
+		}
 
-    public boolean isRead() {
-        return read;
-    }
+		public void setId(Long id) {
+			this.id = id;
+		}
 
-    public void setRead(boolean read) {
-        this.read = read;
-    }
+		public boolean isRead() {
+			return read;
+		}
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
+		public void setRead(boolean read) {
+			this.read = read;
+		}
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+		public LocalDateTime getTimestamp() {
+	        return timestamp;
+	    }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-}
+	    public void setTimestamp(LocalDateTime timestamp) {
+	        this.timestamp = timestamp;
+	    }
+	}

@@ -25,7 +25,7 @@ public class Post {
 
     private LocalDateTime timestamp;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
@@ -41,13 +41,12 @@ public class Post {
 
     @ManyToMany
     @JoinTable(
-        name = "post_tags",
+        name = "post_tagged_users",
         joinColumns = @JoinColumn(name = "post_id"),
         inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> taggedUsers;
-
-  
+    private Set<User> taggedUsers = new HashSet<>();
+    
 	// Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -63,12 +62,13 @@ public class Post {
 
     public Set<Skill> getSkills() { return skills; }
     public void setSkills(Set<Skill> skills) { this.skills = skills; }
+	public Set<User> getTaggedUsers() {
+		return taggedUsers;
+	}
+	public void setTaggedUsers(Set<User> taggedUsers) {
+		this.taggedUsers = taggedUsers;
+	}
     
 
-  	public List<User> getTaggedUsers() {
-  		return taggedUsers;
-  	}
-  	public void setTaggedUsers(List<User> taggedUsers) {
-  		this.taggedUsers = taggedUsers;
-  	}
+  	
 }

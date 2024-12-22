@@ -1,5 +1,6 @@
 package com.example.skillConnectBackend.controller;
 
+import com.example.skillConnectBackend.model.Notification;
 import com.example.skillConnectBackend.model.Post;
 import com.example.skillConnectBackend.service.NotificationService;
 import com.example.skillConnectBackend.service.PostService;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-import javax.management.Notification;
+
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -20,14 +21,16 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+
     @GetMapping
-    public List<com.example.skillConnectBackend.model.Notification> getNotifications() {
-        return notificationService.getAllNotifications();
+    public ResponseEntity<List<Notification>> getUserNotifications(@RequestParam Long userId) {
+        List<Notification> notifications = notificationService.getNotificationsForUser(userId);
+        return ResponseEntity.ok(notifications);
     }
 
     @PostMapping("/mark-read")
-    public ResponseEntity<String> markAllAsRead() {
-        notificationService.markAllAsRead();
-        return ResponseEntity.ok("All notifications marked as read");
-    }
+    public ResponseEntity<Void> markNotificationsAsRead(@RequestParam Long userId) {
+        notificationService.markAllNotificationsAsRead(userId);
+        return ResponseEntity.ok().build();
+}
 }

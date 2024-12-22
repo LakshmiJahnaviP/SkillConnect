@@ -7,6 +7,7 @@ import com.example.skillConnectBackend.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,5 +84,9 @@ public class UserService {
 
     public Optional<User> findByIdWithSkills(Long userId){
         return userRepository.findById(userId);
+    }
+    
+    public List<User> getUsersBySkillIds(List<Long> skillIds) {
+        return userRepository.findUsersBySkillIds(skillIds);
     }
 }

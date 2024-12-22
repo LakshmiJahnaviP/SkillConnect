@@ -1,4 +1,5 @@
 package com.example.skillConnectBackend.service;
+import com.example.skillConnectBackend.model.Notification;
 import com.example.skillConnectBackend.model.Post;
 import com.example.skillConnectBackend.model.Skill;
 import com.example.skillConnectBackend.model.User;
@@ -43,67 +44,87 @@ public class PostService {
             postMap.put("id", post.getId());
             postMap.put("content", post.getContent());
             postMap.put("timestamp", post.getTimestamp());
-            postMap.put("username", post.getUser().getUsername()); // Include username
+            postMap.put("username", post.getUser().getUsername());
+            postMap.put("firstName", post.getUser().getFirstName());
+            postMap.put("taggedUsers", post.getTaggedUsers().stream()
+                .map(taggedUser -> Map.of(
+                    "id", taggedUser.getId(),
+                    "name", taggedUser.getFirstName() + " " + taggedUser.getLastName()
+                ))
+                .collect(Collectors.toList())); // Include tagged users
             postMap.put("skills", post.getSkills().stream()
                 .map(skill -> Map.of("id", skill.getId(), "name", skill.getName()))
                 .collect(Collectors.toList())); // Include skills
             return postMap;
         }).collect(Collectors.toList());
     }
-    	
+
+
+    public List<Map<String, Object>> getAllPostsWithTaggedUsers() {
+        List<Post> posts = postRepository.findAllPostsWithTaggedUsers();
+
+        return posts.stream().map(post -> {
+            Map<String, Object> postMap = new HashMap<>();
+            postMap.put("id", post.getId());
+            postMap.put("content", post.getContent());
+            postMap.put("timestamp", post.getTimestamp());
+            postMap.put("username", post.getUser().getUsername());
+            postMap.put("skills", post.getSkills().stream()
+                .map(skill -> Map.of("id", skill.getId(), "name", skill.getName()))
+                .collect(Collectors.toList()));
+
+            postMap.put("taggedUsers", post.getTaggedUsers().stream()
+                .map(taggedUser -> Map.of("id", taggedUser.getId(), "name", taggedUser.getFirstName() + " " + taggedUser.getLastName()))
+                .collect(Collectors.toList()));
+
+            return postMap;
+        }).collect(Collectors.toList());
+    }
+
     
 
-    public Post createPost(Long userId, String content, List<Long> skillIds) {
+    public Post createPost(Long userId, String content, List<Long> skillIds, List<Long> taggedUserIds) {
+        // Fetch the creator of the post
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Create the post
         Post post = new Post();
         post.setContent(content);
         post.setTimestamp(LocalDateTime.now());
-
-        // Fetch the user
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
         post.setUser(user);
 
         // Fetch skills
         List<Skill> skills = skillRepository.findAllById(skillIds);
         post.setSkills(new HashSet<>(skills));
 
-        return postRepository.save(post);
+        // Fetch tagged users
+        Set<User> taggedUsers = new HashSet<>(userRepository.findAllById(taggedUserIds));
+        post.setTaggedUsers(taggedUsers);
+
+        // Save the post
+        Post savedPost = postRepository.save(post);
+
+        // Create notifications for tagged users
+        for (User taggedUser : taggedUsers) {
+            String message = "You were tagged in a post by " + user.getFirstName() + "!";
+            Notification notification = new Notification();
+            notification.setUser(taggedUser);
+            notification.setMessage(message);
+            notification.setRead(false);
+            notification.setTimestamp(LocalDateTime.now());
+
+            notificationService.createNotification(taggedUser, "You were tagged in a post by " + user.getUsername());
+        }
+
+        return savedPost;
     }
+
 
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
     
-    public Post createPostWithTags(Post post, List<Long> taggedUserIds) {
-        List<User> taggedUsers = userRepository.findAllById(taggedUserIds);
-        post.setTaggedUsers(taggedUsers);
-        Post savedPost = postRepository.save(post);
-
-        // Notify tagged users
-        taggedUsers.forEach(user -> {
-            notificationService.notifyUser(
-                user.getId(),
-                "You were tagged in a post by " + post.getUser().getFirstName()
-            );
-        });
-
-        return savedPost;
-    }
-
-    public List<Map<String, Object>> getAllPostsWithTagsAndUsernames() {
-        List<Post> posts = postRepository.findAllPostsWithTaggedUsers();
-        return posts.stream().map(post -> {
-            Map<String, Object> postMap = new HashMap<>();
-            postMap.put("id", post.getId());
-            postMap.put("content", post.getContent());
-            postMap.put("creatorUsername", post.getUser().getFirstName());
-            postMap.put("timestamp", post.getTimestamp());
-            postMap.put("taggedUsers", post.getTaggedUsers().stream()
-                    .map(user -> Map.of("id", user.getId(), "name", user.getFirstName()))
-                    .toList());
-            return postMap;
-        }).toList();
-    }
 
     
 }

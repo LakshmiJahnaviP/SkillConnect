@@ -1,6 +1,7 @@
 package com.example.skillConnectBackend.controller;
 
 import com.example.skillConnectBackend.model.Post;
+import com.example.skillConnectBackend.requests.PostRequest;
 import com.example.skillConnectBackend.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +24,12 @@ public class PostController {
         Post post = postService.createPost(
             postRequest.getUserId(),
             postRequest.getContent(),
-            postRequest.getSkillIds()
+            postRequest.getSkillIds(),
+            postRequest.getTaggedUserIds() // Include tagged users
         );
         return ResponseEntity.ok(post);
     }
+
    
 
     @GetMapping

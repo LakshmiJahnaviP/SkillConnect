@@ -1,4 +1,4 @@
-package com.example.skillConnectBackend.controller;
+package com.example.skillConnectBackend.requests;
 
 import jakarta.validation.constraints.NotNull;
 

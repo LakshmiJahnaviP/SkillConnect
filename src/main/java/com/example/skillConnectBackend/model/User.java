@@ -1,7 +1,9 @@
 package com.example.skillConnectBackend.model;
 
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.*;
@@ -34,9 +36,13 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<Skill> skills = new HashSet<>();
+    
+   
 	
 
-    // Getters and setters
+    
+
+	// Getters and setters
     public Long getId() {
         return id;
     }
@@ -99,4 +105,6 @@ public class User {
     public void setSkills(Set<Skill> skills) {
         this.skills = skills;
     }
+    
+   
 }

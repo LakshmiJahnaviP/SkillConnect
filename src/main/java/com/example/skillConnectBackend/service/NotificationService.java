@@ -18,99 +18,25 @@ public class NotificationService {
 
     @Autowired
     private NotificationRepository notificationRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
 
-    /**
-     * Get all notifications.
-     *
-     * @return List of all notifications.
-     */
-    public List<Notification> getAllNotifications() {
-        return notificationRepository.findAll();
+    public void createNotification(User user, String message) {
+    	 Notification notification = new Notification();
+         notification.setUser(user);
+         notification.setMessage(message);
+         notification.setRead(false); // Mark as unread by default
+         notification.setTimestamp(LocalDateTime.now());
+         notificationRepository.save(notification);
     }
 
-    /**
-     * Get all unread notifications.
-     *
-     * @return List of unread notifications.
-     */
-    public List<Notification> getUnreadNotifications() {
-        return notificationRepository.findByReadFalse();
+    public List<Notification> getNotificationsForUser(Long userId) {
+        return notificationRepository.findByUserIdAndReadFalse(userId);
     }
 
-    /**
-     * Get all notifications for a specific user.
-     *
-     * @param userId The user ID.
-     * @return List of notifications for the user.
-     */
-    public List<Notification> getNotificationsByUserId(Long userId) {
-        return notificationRepository.findByUserId(userId);
-    }
-
-    /**
-     * Mark all notifications as read.
-     */
-    public void markAllAsRead() {
-        List<Notification> unreadNotifications = notificationRepository.findByReadFalse();
-        for (Notification notification : unreadNotifications) {
+    public void markAllNotificationsAsRead(Long userId) {
+        List<Notification> notifications = notificationRepository.findByUserIdAndReadFalse(userId);
+        for (Notification notification : notifications) {
             notification.setRead(true);
         }
-        notificationRepository.saveAll(unreadNotifications);
+        notificationRepository.saveAll(notifications);
     }
-
-    /**
-     * Mark notifications as read for a specific user.
-     *
-     * @param userId The user ID.
-     */
-    public void markAllAsReadByUserId(Long userId) {
-        List<Notification> unreadNotifications = notificationRepository.findByUserIdAndReadFalse(userId);
-        for (Notification notification : unreadNotifications) {
-            notification.setRead(true);
-        }
-        notificationRepository.saveAll(unreadNotifications);
-    }
-
-    /**
-     * Add a new notification.
-     *
-     * @param notification The notification to add.
-     */
-    public void addNotification(Notification notification) {
-        notificationRepository.save(notification);
-    }
-    
-    public void notifyUser(Long userId, String message) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Notification notification = new Notification();
-        notification.setUser(user);
-        notification.setMessage(message);
-        notification.setRead(false);
-        notification.setTimestamp(LocalDateTime.now());
-
-        notificationRepository.save(notification);
-    }
-    public void notifyTaggedUsers(Post post) {
-        post.getTaggedUsers().forEach(user -> {
-            String message = "You were mentioned in a post by " + post.getUser().getFirstName();
-            notifyUser(user.getId(), message);
-        });
-    }
-
-    public void markUserNotificationsAsRead(Long userId) {
-        List<Notification> unreadNotifications = notificationRepository.findByUserIdAndReadFalse(userId);
-        for (Notification notification : unreadNotifications) {
-            notification.setRead(true); // Mark each notification as read
-        }
-        notificationRepository.saveAll(unreadNotifications); // Save changes
-    }
-
-    
-    
 }
-

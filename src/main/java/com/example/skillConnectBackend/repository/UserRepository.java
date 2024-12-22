@@ -2,6 +2,7 @@ package com.example.skillConnectBackend.repository;
 
 
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmailOrUsername(@Param("identifier") String identifier);
     @Query("SELECT u FROM User u JOIN FETCH u.skills WHERE u.id = :userId")
     Optional<User> findByIdWithSkills(@Param("userId") Long userId);
+    
+    @Query("SELECT u FROM User u JOIN u.skills s WHERE s.id IN :skillIds")
+    List<User> findUsersBySkillIds(@Param("skillIds") List<Long> skillIds);
 }
