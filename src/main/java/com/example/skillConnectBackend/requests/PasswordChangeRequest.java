@@ -3,7 +3,7 @@ package com.example.skillConnectBackend.requests;
 public class PasswordChangeRequest {
     private String oldPassword;
     private String newPassword;
-    private String newPasswordConfirm; // New field for password confirmation
+    private String newPasswordConfirm; 
 
     public PasswordChangeRequest() {}
 
@@ -13,7 +13,7 @@ public class PasswordChangeRequest {
         this.newPasswordConfirm = newPasswordConfirm;
     }
 
-    // Getters and Setters
+   
     public String getOldPassword() {
         return oldPassword;
     }

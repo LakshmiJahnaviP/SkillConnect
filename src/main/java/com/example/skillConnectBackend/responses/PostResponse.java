@@ -60,6 +60,6 @@ public class PostResponse {
 		this.skills = skills;
 	}
 
-    // Getters and setters
+   
     
 }

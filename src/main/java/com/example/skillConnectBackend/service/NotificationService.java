@@ -7,6 +7,8 @@ import com.example.skillConnectBackend.model.User;
 import com.example.skillConnectBackend.repository.NotificationRepository;
 import com.example.skillConnectBackend.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,7 @@ public class NotificationService {
     	 Notification notification = new Notification();
          notification.setUser(user);
          notification.setMessage(message);
-         notification.setRead(false); // Mark as unread by default
+         notification.setRead(false); 
          notification.setTimestamp(LocalDateTime.now());
          notificationRepository.save(notification);
     }
@@ -38,5 +40,10 @@ public class NotificationService {
             notification.setRead(true);
         }
         notificationRepository.saveAll(notifications);
+    }
+    
+    @Transactional
+    public void clearReadNotifications(Long userId) {
+        notificationRepository.deleteReadNotificationsForUser(userId);
     }
 }

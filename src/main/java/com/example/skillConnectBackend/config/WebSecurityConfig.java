@@ -38,8 +38,8 @@ public class WebSecurityConfig {
                 .requestMatchers("/register", "/login","/api/skills/suggestions").permitAll() // Ensure register and login are open
                 .anyRequest().permitAll() // Other routes require authentication
             )
-            .formLogin().disable() // Disable form login to prevent redirection to the login page
-            .logout().permitAll(); // Allow logout access
+            .formLogin().disable()
+            .logout().permitAll(); 
 
         return http.build();
     }
@@ -52,17 +52,17 @@ public class WebSecurityConfig {
 
     // CORS Configuration
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")  // Apply CORS policy to all routes
-                .allowedOrigins("http://localhost:3000")  // Frontend URL (adjust if needed)
-                .allowedMethods("GET", "POST", "PUT", "DELETE")  // Allowed HTTP methods
-                .allowedHeaders("*")  // Allow any header
-                .allowCredentials(true);  // Allow credentials (cookies, authorization headers)
+        registry.addMapping("/**")  
+                .allowedOrigins("http://localhost:3000")  
+                .allowedMethods("GET", "POST", "PUT", "DELETE")  
+                .allowedHeaders("*")  
+                .allowCredentials(true);  
     }
     
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Allow only your frontend origin
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

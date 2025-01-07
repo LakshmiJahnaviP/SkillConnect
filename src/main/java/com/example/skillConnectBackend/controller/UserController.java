@@ -86,10 +86,9 @@ public class UserController {
 
             return ResponseEntity.ok(savedUser);
         } catch (Exception e) {
-            // Log the exception for debugging purposes
+            
             e.printStackTrace();
             
-            // Return the error message as part of the response
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Registration failed", e.getMessage()));
         }

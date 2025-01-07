@@ -32,5 +32,12 @@ public class NotificationController {
     public ResponseEntity<Void> markNotificationsAsRead(@RequestParam Long userId) {
         notificationService.markAllNotificationsAsRead(userId);
         return ResponseEntity.ok().build();
-}
+    }
+    
+    @DeleteMapping("/clear")
+    public ResponseEntity<Void> clearReadNotifications(@RequestParam Long recipientId) {
+        notificationService.clearReadNotifications(recipientId);
+        return ResponseEntity.ok().build();
+    }
+    
 }

@@ -40,15 +40,15 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
     
-    // Save user to database
+    
     public void saveUser(User user) {
-        // First, check if the user already exists in the database
+       
         Optional<User> existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser.isPresent()) {
             throw new RuntimeException("User with this email already exists");
         }
 
-        // Save the user to the database
+        
         userRepository.save(user);
     }
     
@@ -59,13 +59,13 @@ public class UserService {
             return user;
         }
 
-        return null; // Invalid credentials
+        return null; 
     }
     
     public User getUserProfile(Long userId) {
-        // Assuming you have a repository with a method to find a user by ID
+       
         Optional<User> user = userRepository.findById(userId);
-        return user.orElse(null);  // Return the user or null if not found
+        return user.orElse(null);  
     }
     public Skill addSkillToUser(Long userId, Long skillId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));

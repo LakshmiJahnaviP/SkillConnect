@@ -4,12 +4,12 @@ import jakarta.validation.constraints.NotNull;
 
 public class LoginRequest {
 	@NotNull(message = "Identifier is required")
-	private String identifier;  // Email or User name
+	private String identifier;  
 	
 	@NotNull(message = "Password is required")
     private String password;
 
-    // Getters and Setters
+    
     public String getIdentifier() {
         return identifier;
     }

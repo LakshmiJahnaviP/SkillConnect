@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
         response.put("timestamp", LocalDateTime.now());
         response.put("error", ex.getMessage());
         response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("stackTrace", Arrays.toString(ex.getStackTrace()));  // Include stack trace
+        response.put("stackTrace", Arrays.toString(ex.getStackTrace()));  
         
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

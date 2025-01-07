@@ -51,10 +51,10 @@ public class PostService {
                     "id", taggedUser.getId(),
                     "name", taggedUser.getFirstName() + " " + taggedUser.getLastName()
                 ))
-                .collect(Collectors.toList())); // Include tagged users
+                .collect(Collectors.toList())); 
             postMap.put("skills", post.getSkills().stream()
                 .map(skill -> Map.of("id", skill.getId(), "name", skill.getName()))
-                .collect(Collectors.toList())); // Include skills
+                .collect(Collectors.toList())); 
             return postMap;
         }).collect(Collectors.toList());
     }
@@ -84,28 +84,28 @@ public class PostService {
     
 
     public Post createPost(Long userId, String content, List<Long> skillIds, List<Long> taggedUserIds) {
-        // Fetch the creator of the post
+        
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Create the post
+       
         Post post = new Post();
         post.setContent(content);
         post.setTimestamp(LocalDateTime.now());
         post.setUser(user);
 
-        // Fetch skills
+        
         List<Skill> skills = skillRepository.findAllById(skillIds);
         post.setSkills(new HashSet<>(skills));
 
-        // Fetch tagged users
+        
         Set<User> taggedUsers = new HashSet<>(userRepository.findAllById(taggedUserIds));
         post.setTaggedUsers(taggedUsers);
 
-        // Save the post
+       
         Post savedPost = postRepository.save(post);
 
-        // Create notifications for tagged users
+        
         for (User taggedUser : taggedUsers) {
             String message = "You were tagged in a post by " + user.getFirstName() + "!";
             Notification notification = new Notification();
